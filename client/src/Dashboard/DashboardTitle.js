@@ -23,7 +23,7 @@ export default function DashboardTitle({ dates, userState, getDashboardData }) {
   const [dateFilterValue, setDateFilterValue] = useState(dates.dateFilterValue)
   const [isPaymentModalVisible, setPaymentModalVisible] = useState(false)
   const [isActionsDropdownOpen, setActionsDropdownOpen] = useState(false)
-  const [isPaymentSuccessModalVisible, setPaymentSuccessModalVisible] = useState(false)
+  const [isPaymentSuccessOpen, setPaymentSuccessOpen] = useState(false)
   const [totalPayment, setTotalPayment] = useState(0)
   const [childPayments, setChildPayments] = useState({})
   const { makeRequest } = useApiResponse()
@@ -126,7 +126,7 @@ export default function DashboardTitle({ dates, userState, getDashboardData }) {
 
     if (response.ok) {
       setPaymentModalVisible(false)
-      setPaymentSuccessModalVisible(true)
+      setPaymentSuccessOpen(true)
     } else {
       // TODO: handle bad request
       console.log(response, 'bad request')
@@ -135,7 +135,7 @@ export default function DashboardTitle({ dates, userState, getDashboardData }) {
   const paymentModal = (
     <Modal
       className="payment-modal"
-      title={<div className="text-center h2-large">{Success}</div>}
+      title={<div className="text-center h2-large">{t('recordAPayment')}</div>}
       closeIcon={<CloseOutlined className="-btn-primary" />}
       visible={isPaymentModalVisible}
       on={handlePaymentModalCancel}
@@ -164,36 +164,55 @@ export default function DashboardTitle({ dates, userState, getDashboardData }) {
     </Modal>
   )
 
+  const monthNames = [
+    'january',
+    'february',
+    'march',
+    'april',
+    'may',
+    'june',
+    'july',
+    'august',
+    'september',
+    'october',
+    'november',
+    'december'
+  ]
+
+  const previousMonth = monthNames[lastMonth.getMonth()]
+  const previousMonthYear = lastMonth.getFullYear()
+
   const handleOk = () => {
-    setPaymentSuccessModalVisible(false);
-  };
+    setPaymentSuccessOpen(false)
+  }
 
   const paymentSuccessModal = (
-      <Modal
-          className="payment-success-modal"
-          title={<div className="text-center h2-large">{t('recordAPayment')}</div>}
-          closeIcon={<CloseOutlined className="-btn-primary" />}
-          visible={paymentSuccessModalVisible}
-          onOk={handleOk}
-          width={1000}
-          footer={
-            <div className="flex justify-right">
-              <Button
-                  type="primary"
-                  shape="round"
-                  size="large"
-                  className="payment-success-button"
-                  onClick={handleOk}
-              >
-                {Ok} ${totalPayment.toFixed()}
-              </Button>
-            </div>
-          }
-      >
-       <p>
-       {t('paymentSuccessText')} {lastMonth} {t('paymentSuccessText2')}
-       </p>
-      </Modal>
+    <Modal
+      className="payment-success-modal"
+      title={<div className="text-center h2-large">{t('paymentSuccess')}</div>}
+      closeIcon={<CloseOutlined className="-btn-primary" />}
+      visible={isPaymentSuccessOpen}
+      onOk={handleOk}
+      onCancel={handleOk}
+      footer={
+        <div className="flex justify-right">
+          <Button
+            type="primary"
+            shape="round"
+            size="large"
+            className="payment-success-button"
+            onClick={handleOk}
+          >
+            {t('okButton')}
+          </Button>
+        </div>
+      }
+    >
+      <p>
+        {t('paymentSuccessText')} {t(previousMonth)} {previousMonthYear}{' '}
+        {t('paymentSuccessText2')} <b>${totalPayment.toFixed()}.</b>
+      </p>
+    </Modal>
   )
 
   const renderDisabledMonth = () => (
